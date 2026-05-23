@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f0f14"/>
+      <stop offset="0.5" stop-color="#1a1030"/>
+      <stop offset="1" stop-color="#0f1a24"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="200" y1="100" x2="1000" y2="530" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="200" cy="150" r="120" fill="#8B5CF6" fill-opacity="0.15"/>
+  <circle cx="1000" cy="480" r="160" fill="#06B6D4" fill-opacity="0.12"/>
+  <text x="600" y="260" text-anchor="middle" font-family="Georgia, serif" font-size="88" font-weight="700" fill="url(#accent)">Script Safari</text>
+  <text x="600" y="340" text-anchor="middle" font-family="system-ui, sans-serif" font-size="36" fill="#a1a1aa">Explore Ideas. Discover Stories.</text>
+  <text x="600" y="520" text-anchor="middle" font-family="system-ui, sans-serif" font-size="28" fill="#71717a">script-safari.com</text>
+</svg>

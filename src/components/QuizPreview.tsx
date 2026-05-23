@@ -1,13 +1,18 @@
 import { motion } from "framer-motion";
 import { Sparkles, Brain, Zap } from "lucide-react";
+import { useActiveQuizzes } from "@/hooks/usePublicContent";
 
-const quizzes = [
-  { title: "What Type of Tech Leader Are You?", icon: Brain, category: "Personality", color: "primary" },
-  { title: "Test Your AI Knowledge", icon: Sparkles, category: "Tech Quiz", color: "accent" },
-  { title: "Weekly Challenge: Startup IQ", icon: Zap, category: "Challenge", color: "secondary" },
-];
+const iconByCategory: Record<string, typeof Brain> = {
+  personality: Brain,
+  knowledge: Sparkles,
+  challenge: Zap,
+};
+
+const colorByIndex = ["primary", "accent", "secondary"] as const;
 
 const QuizPreview = () => {
+  const { data: quizzes = [], isLoading } = useActiveQuizzes(3);
+
   return (
     <section className="py-24">
       <div className="container mx-auto px-4">
@@ -25,31 +30,51 @@ const QuizPreview = () => {
           </h2>
         </motion.div>
 
+        {isLoading && (
+          <p className="text-center text-muted-foreground animate-pulse">Loading quizzes...</p>
+        )}
+
+        {!isLoading && quizzes.length === 0 && (
+          <p className="text-center text-muted-foreground">Create active quizzes in admin to list them here.</p>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {quizzes.map((quiz, i) => (
-            <motion.div
-              key={quiz.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ y: -4 }}
-              className="glass rounded-2xl p-6 text-center cursor-pointer group hover:border-primary/30 transition-all"
-            >
-              <div className={`w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center ${
-                quiz.color === "primary" ? "bg-primary/20" : quiz.color === "accent" ? "bg-accent/20" : "bg-secondary/20"
-              }`}>
-                <quiz.icon className={`w-7 h-7 ${
-                  quiz.color === "primary" ? "text-primary" : quiz.color === "accent" ? "text-accent" : "text-secondary"
-                }`} />
-              </div>
-              <span className="text-xs text-muted-foreground mb-2 block">{quiz.category}</span>
-              <h3 className="font-display font-bold text-lg mb-4">{quiz.title}</h3>
-              <span className="inline-block px-5 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground animate-pulse_glow cursor-pointer">
-                Start Quiz
-              </span>
-            </motion.div>
-          ))}
+          {quizzes.map((quiz, i) => {
+            const Icon = iconByCategory[quiz.category ?? ""] ?? Brain;
+            const color = colorByIndex[i % colorByIndex.length];
+
+            return (
+              <motion.div
+                key={quiz.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -4 }}
+                className="glass rounded-2xl p-6 text-center cursor-pointer group hover:border-primary/30 transition-all"
+              >
+                <div
+                  className={`w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center ${
+                    color === "primary" ? "bg-primary/20" : color === "accent" ? "bg-accent/20" : "bg-secondary/20"
+                  }`}
+                >
+                  <Icon
+                    className={`w-7 h-7 ${
+                      color === "primary" ? "text-primary" : color === "accent" ? "text-accent" : "text-secondary"
+                    }`}
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground mb-2 block capitalize">{quiz.category}</span>
+                <h3 className="font-display font-bold text-lg mb-2">{quiz.title}</h3>
+                {quiz.description && (
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{quiz.description}</p>
+                )}
+                <span className="inline-block px-5 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground animate-pulse_glow cursor-pointer">
+                  Start Quiz
+                </span>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

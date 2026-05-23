@@ -6,6 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
+import PostDetail from "./pages/PostDetail";
+import ArticlesPage from "./pages/ArticlesPage";
+import QuotesPage from "./pages/QuotesPage";
+import NewsPage from "./pages/NewsPage";
+import NewsDetail from "./pages/NewsDetail";
+import QuizzesPage from "./pages/QuizzesPage";
+import StoriesPage from "./pages/StoriesPage";
+import ReadersPage from "./pages/ReadersPage";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -33,6 +41,14 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/articles" element={<ArticlesPage />} />
+            <Route path="/post/:slug" element={<PostDetail />} />
+            <Route path="/quotes" element={<QuotesPage />} />
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:slug" element={<NewsDetail />} />
+            <Route path="/quizzes" element={<QuizzesPage />} />
+            <Route path="/stories" element={<StoriesPage />} />
+            <Route path="/readers" element={<ReadersPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />

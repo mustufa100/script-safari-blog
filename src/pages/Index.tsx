@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import NewsTicker from "@/components/NewsTicker";
@@ -9,6 +11,15 @@ import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const el = document.querySelector(hash);
+      setTimeout(() => el?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    }
+  }, [hash]);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />

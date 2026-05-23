@@ -1,22 +1,21 @@
-const newsItems = [
-  "🔥 OpenAI launches GPT-6 with multimodal reasoning",
-  "📈 Bitcoin surges past $150K amid institutional buying",
-  "🚀 SpaceX completes first Mars cargo mission",
-  "💡 Apple unveils Vision Pro 3 with neural interface",
-  "🌍 EU passes landmark AI regulation framework",
-  "⚡ Tesla's new battery lasts 1M miles",
-  "🎮 Meta launches full-body VR haptic suit",
-  "📱 Google announces Android 18 with AI-first design",
-];
+import { usePublishedNews } from "@/hooks/usePublicContent";
 
 const NewsTicker = () => {
+  const { data: news = [], isLoading } = usePublishedNews(12);
+
+  const items = isLoading
+    ? ["Loading latest news..."]
+    : news.length > 0
+      ? news.map((item) => `${item.is_breaking ? "🔥 " : ""}${item.title}`)
+      : ["Publish news in admin to populate this ticker"];
+
   return (
     <div className="py-4 border-y border-border bg-muted/30 overflow-hidden">
       <div className="flex animate-ticker">
-        {[...newsItems, ...newsItems].map((item, i) => (
+        {[...items, ...items].map((item, i) => (
           <span
             key={i}
-            className="flex-shrink-0 px-8 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer whitespace-nowrap"
+            className="flex-shrink-0 px-8 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-default whitespace-nowrap"
           >
             {item}
           </span>

@@ -22,6 +22,11 @@ interface Post {
   reading_time: number;
   views: number;
   created_at: string;
+  content?: string | null;
+  excerpt?: string | null;
+  featured_image?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
 }
 
 function slugify(text: string) {
@@ -47,11 +52,12 @@ export default function PostsManager() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDesc, setSeoDesc] = useState('');
+  const [featuredImage, setFeaturedImage] = useState('');
 
   const fetchPosts = async () => {
     const { data } = await supabase
       .from('posts')
-      .select('id, title, slug, status, is_featured, reading_time, views, created_at')
+      .select('id, title, slug, status, is_featured, reading_time, views, created_at, content, excerpt, featured_image, seo_title, seo_description')
       .order('created_at', { ascending: false });
     if (data) setPosts(data);
   };
@@ -60,7 +66,7 @@ export default function PostsManager() {
 
   const resetForm = () => {
     setTitle(''); setContent(''); setExcerpt(''); setStatus('draft');
-    setIsFeatured(false); setSeoTitle(''); setSeoDesc(''); setEditing(null);
+    setIsFeatured(false); setSeoTitle(''); setSeoDesc(''); setFeaturedImage(''); setEditing(null);
   };
 
   const handleSave = async () => {
@@ -70,6 +76,7 @@ export default function PostsManager() {
     const reading_time = estimateReadingTime(content);
     const payload = {
       title, slug, content, excerpt, status, is_featured: isFeatured,
+      featured_image: featuredImage.trim() || null,
       seo_title: seoTitle || title, seo_description: seoDesc || excerpt,
       reading_time, author_id: user?.id,
       ...(status === 'published' ? { published_at: new Date().toISOString() } : {}),
@@ -111,6 +118,10 @@ export default function PostsManager() {
             <div className="space-y-4">
               <div><Label>Title</Label><Input value={title} onChange={e => setTitle(e.target.value)} className="bg-muted/50" /></div>
               <div><Label>Excerpt</Label><Input value={excerpt} onChange={e => setExcerpt(e.target.value)} className="bg-muted/50" /></div>
+              <div>
+                <Label>Featured image URL</Label>
+                <Input value={featuredImage} onChange={e => setFeaturedImage(e.target.value)} placeholder="https://..." className="bg-muted/50" />
+              </div>
               <div><Label>Content</Label><Textarea value={content} onChange={e => setContent(e.target.value)} className="bg-muted/50 min-h-[200px]" /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Status</Label>
@@ -148,6 +159,11 @@ export default function PostsManager() {
               <Button size="icon" variant="ghost" onClick={() => {
                 setEditing(post);
                 setTitle(post.title);
+                setContent(post.content ?? '');
+                setExcerpt(post.excerpt ?? '');
+                setFeaturedImage(post.featured_image ?? '');
+                setSeoTitle(post.seo_title ?? '');
+                setSeoDesc(post.seo_description ?? '');
                 setStatus(post.status);
                 setIsFeatured(post.is_featured);
                 setDialogOpen(true);

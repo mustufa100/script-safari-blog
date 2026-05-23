@@ -1,0 +1,15 @@
+{
+  "name": "Script Safari",
+  "short_name": "Script Safari",
+  "description": "Explore Ideas. Discover Stories.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#8B5CF6",
+  "background_color": "#0f0f14",
+  "display": "standalone"
+}

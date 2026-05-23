@@ -1,10 +1,27 @@
+import { Link } from "react-router-dom";
 import { Github, Twitter, Instagram, Linkedin, Heart } from "lucide-react";
 
-const links = {
-  Product: ["Articles", "Quotes", "Web Stories", "Quiz", "News"],
-  Company: ["About Us", "Careers", "Press", "Contact"],
-  Resources: ["Blog", "Community", "Support", "FAQ"],
-  Legal: ["Privacy", "Terms", "Cookies"],
+const links: Record<string, { label: string; href: string }[]> = {
+  Product: [
+    { label: "Articles", href: "/articles" },
+    { label: "Quotes", href: "/quotes" },
+    { label: "Web Stories", href: "/stories" },
+    { label: "Quiz", href: "/quizzes" },
+    { label: "News", href: "/news" },
+  ],
+  Company: [
+    { label: "About Us", href: "/readers" },
+    { label: "Readers", href: "/readers" },
+    { label: "Contact", href: "/readers#submit" },
+  ],
+  Resources: [
+    { label: "Blog", href: "/articles" },
+    { label: "Community", href: "/readers#community" },
+  ],
+  Legal: [
+    { label: "Privacy", href: "/readers" },
+    { label: "Terms", href: "/readers" },
+  ],
 };
 
 const socials = [
@@ -46,10 +63,10 @@ const Footer = () => {
               <h4 className="font-display font-semibold text-sm mb-4">{title}</h4>
               <ul className="space-y-2.5">
                 {items.map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                      {item}
-                    </a>
+                  <li key={item.href + item.label}>
+                    <Link to={item.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                      {item.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
