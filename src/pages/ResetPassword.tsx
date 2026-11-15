@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { EmailOtpType } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { parseAuthCallback } from '@/lib/authRedirect';
+import { completeAuthCallback, initialAuthCallback } from '@/lib/authCallback';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -18,7 +17,7 @@ export default function ResetPassword() {
   useEffect(() => {
     let active = true;
     const prepareRecovery = async () => {
-      const callback = parseAuthCallback(window.location.search, window.location.hash);
+      const callback = initialAuthCallback;
       if (callback.error) {
         if (active) setErrorMessage(callback.error);
         return;
@@ -28,25 +27,13 @@ export default function ResetPassword() {
         if (active) setErrorMessage('Open the password reset link from your email to choose a new password.');
         return;
       }
-      if (callback.code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(callback.code);
-        if (error) {
-          if (active) setErrorMessage(error.message);
-          return;
-        }
-      } else if (callback.tokenHash && callback.type === 'recovery') {
-        const { error } = await supabase.auth.verifyOtp({ token_hash: callback.tokenHash, type: callback.type as EmailOtpType });
-        if (error) {
-          if (active) setErrorMessage(error.message);
-          return;
-        }
-      }
-      const { data, error } = await supabase.auth.getSession();
-      if (!active) return;
-      if (error || !data.session) setErrorMessage(error?.message ?? 'This reset link is invalid or has expired. Request a new one.');
-      else {
+      try {
+        await completeAuthCallback();
+        if (!active) return;
         setReady(true);
         window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (error) {
+        if (active) setErrorMessage(error instanceof Error ? error.message : 'This reset link is invalid or has expired. Request a new one.');
       }
     };
     void prepareRecovery();

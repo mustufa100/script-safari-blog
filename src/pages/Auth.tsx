@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import type { EmailOtpType } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
-import { parseAuthCallback } from '@/lib/authRedirect';
+import { completeAuthCallback, initialAuthCallback } from '@/lib/authCallback';
 
 type AuthMode = 'login' | 'signup' | 'forgot';
 
@@ -28,48 +27,24 @@ const Auth = () => {
   useEffect(() => {
     let active = true;
     const handleCallback = async () => {
-      const callback = parseAuthCallback(window.location.search, window.location.hash);
+      const callback = initialAuthCallback;
       if (callback.error) {
         if (active) setCallbackError(callback.error);
         return;
       }
       if (!callback.code && !callback.tokenHash && !callback.hasSessionTokens) return;
 
-      if (callback.code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(callback.code);
-        if (error) {
-          if (active) setCallbackError(error.message);
-          return;
-        }
-      } else if (callback.tokenHash && callback.type) {
-        const { data: current } = await supabase.auth.getSession();
-        if (!current.session) {
-          const { error } = await supabase.auth.verifyOtp({
-            token_hash: callback.tokenHash,
-            type: callback.type as EmailOtpType,
-          });
-          if (error) {
-            if (active) setCallbackError(error.message);
-            return;
-          }
-        }
-      }
-
-      const { data, error } = await supabase.auth.getSession();
-      if (!active) return;
-      if (error) {
-        setCallbackError(error.message);
-        return;
-      }
-      if (data.session) {
-        if (callback.type === 'signup' || callback.type === 'email') {
-          await supabase.auth.signOut();
-        }
+      try {
+        await completeAuthCallback();
+        if (!active) return;
+        if (callback.type === 'recovery') { navigate('/reset-password' + window.location.search + window.location.hash, { replace: true }); return; }
+        await supabase.auth.signOut({ scope: 'local' });
+        if (!active) return;
         setMode('login');
-        setCallbackMessage('Your email is confirmed. You can now sign in to Script Safari.');
+        setCallbackMessage('Your email link is verified. Please sign in to Script Safari.');
         window.history.replaceState({}, document.title, window.location.pathname);
-      } else {
-        setCallbackError('We could not confirm this email link. Request a new verification email and try again.');
+      } catch (error) {
+        if (active) setCallbackError(error instanceof Error ? error.message : 'This email link is invalid or has expired.');
       }
     };
     void handleCallback();
