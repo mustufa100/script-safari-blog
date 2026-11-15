@@ -1,7 +1,7 @@
 # Authentication and media uploads
 - [x] Audit and fix verification/recovery callbacks and staff session hydration.
 - [x] Apply and read back public-read and staff-only write/delete media policies.
-- [ ] Create public media bucket — blocked by workspace public_buckets_blocked policy; workspace owner/admin must allow public buckets before creation can be retried.
+- [x] Create public media bucket (created after workspace setting changed).
 - [x] Add reusable URL + computer upload field with validation, progress, and previews.
 - [x] Integrate post create/edit and web story create/edit thumbnail fields without changing existing content.
 - [x] Run 21 targeted tests and authenticated browser checks for native picker, preserved URL on failure, readable upload errors, recovery guards, and mobile layout.
