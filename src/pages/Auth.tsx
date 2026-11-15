@@ -63,9 +63,19 @@ const Auth = () => {
         navigate('/admin');
       }
     } else if (mode === 'signup') {
-      const { error } = await signUp(email, password, displayName);
-      if (error) toast.error(error.message);
-      else setCallbackMessage('Account created. Check your email and follow the confirmation link to finish signing up.');
+      const { error, session } = await signUp(email, password, displayName);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        // Auto-confirmed registrations normally include a session. The fallback also
+        // supports configurations that create the user without returning one.
+        const loginResult = session ? { error: null } : await signIn(email, password);
+        if (loginResult.error) toast.error(loginResult.error.message);
+        else {
+          toast.success('Account created — you are signed in!');
+          navigate('/login');
+        }
+      }
     } else {
       const { error } = await resetPassword(email);
       if (error) toast.error(error.message);

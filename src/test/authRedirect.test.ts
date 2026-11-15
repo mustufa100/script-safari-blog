@@ -9,6 +9,9 @@ describe('auth redirects', () => {
   it('keeps local development on its own origin', () => {
     expect(getAuthRedirectUrl('/auth', 'http://localhost:8080')).toBe('http://localhost:8080/auth');
   });
+  it('uses the canonical production login page after registration', () => {
+    expect(getAuthRedirectUrl('/login', 'https://www.scriptsafari.com')).toBe('https://scriptsafari.com/login');
+  });
   it('sends production recovery to the canonical reset-password page', () => {
     expect(getAuthRedirectUrl('/reset-password', 'https://www.scriptsafari.com')).toBe('https://scriptsafari.com/reset-password');
   });
