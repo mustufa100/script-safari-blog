@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
 import { completeAuthCallback, initialAuthCallback } from '@/lib/authCallback';
+import { getAuthRedirectUrl } from '@/lib/authRedirect';
 
 type AuthMode = 'login' | 'signup' | 'forgot';
 
@@ -73,7 +74,7 @@ const Auth = () => {
         if (loginResult.error) toast.error(loginResult.error.message);
         else {
           toast.success('Account created — you are signed in!');
-          navigate('/login');
+          window.location.assign(getAuthRedirectUrl('/login'));
         }
       }
     } else {
