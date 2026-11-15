@@ -10,7 +10,7 @@
 - [x] Report hosted URL settings and email/deployment checks that require the owner.
 
 # Immediate registration
-- [ ] Disable hosted email confirmation without changing unrelated auth security settings.
-- [ ] Register with an immediate session and send new users to /login; remove verification-pending copy.
-- [ ] Add /login while preserving password recovery and existing staff authorization.
-- [ ] Test registration, login, normal-user role assignment, and existing staff access.
+- [ ] Disable hosted email confirmation — manual owner step in Auth settings → Email; unrelated hosted security values cannot be read safely.
+- [x] Register with an immediate session and send new users to /login; remove verification-pending copy.
+- [x] Add /login while preserving password recovery and existing staff authorization.
+- [ ] Complete live immediate registration and password login — blocked until hosted email confirmation is disabled; test signup returned no session.
