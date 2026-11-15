@@ -51,6 +51,7 @@ const App = () => (
             <Route path="/stories" element={<StoriesPage />} />
             <Route path="/readers" element={<ReadersPage />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/login" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
