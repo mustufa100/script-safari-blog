@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { ImageUploadField } from '@/components/admin/ImageUploadField';
 
 interface Post {
   id: string;
@@ -53,6 +54,8 @@ export default function PostsManager() {
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDesc, setSeoDesc] = useState('');
   const [featuredImage, setFeaturedImage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const fetchPosts = async () => {
     const { data } = await supabase
@@ -70,7 +73,9 @@ export default function PostsManager() {
   };
 
   const handleSave = async () => {
+    if (uploading || saving) return;
     if (!title.trim()) { toast.error('Title is required'); return; }
+    setSaving(true);
 
     const slug = slugify(title);
     const reading_time = estimateReadingTime(content);
@@ -84,14 +89,15 @@ export default function PostsManager() {
 
     if (editing) {
       const { error } = await supabase.from('posts').update(payload).eq('id', editing.id);
-      if (error) { toast.error(error.message); return; }
+      if (error) { toast.error(error.message); setSaving(false); return; }
       toast.success('Post updated');
     } else {
       const { error } = await supabase.from('posts').insert(payload);
-      if (error) { toast.error(error.message); return; }
+      if (error) { toast.error(error.message); setSaving(false); return; }
       toast.success('Post created');
     }
 
+    setSaving(false);
     setDialogOpen(false);
     resetForm();
     fetchPosts();
@@ -109,7 +115,7 @@ export default function PostsManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-2xl font-display font-bold text-foreground">Posts</h1>
-        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { if (uploading || saving) return; setDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-primary to-accent"><Plus className="h-4 w-4 mr-2" />New Post</Button>
           </DialogTrigger>
@@ -118,10 +124,7 @@ export default function PostsManager() {
             <div className="space-y-4">
               <div><Label>Title</Label><Input value={title} onChange={e => setTitle(e.target.value)} className="bg-muted/50" /></div>
               <div><Label>Excerpt</Label><Input value={excerpt} onChange={e => setExcerpt(e.target.value)} className="bg-muted/50" /></div>
-              <div>
-                <Label>Featured image URL</Label>
-                <Input value={featuredImage} onChange={e => setFeaturedImage(e.target.value)} placeholder="https://..." className="bg-muted/50" />
-              </div>
+              <ImageUploadField label="Featured image URL" value={featuredImage} onChange={setFeaturedImage} folder="posts" onBusyChange={setUploading} />
               <div><Label>Content</Label><Textarea value={content} onChange={e => setContent(e.target.value)} className="bg-muted/50 min-h-[200px]" /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Status</Label>
@@ -134,7 +137,7 @@ export default function PostsManager() {
               </div>
               <div><Label>SEO Title</Label><Input value={seoTitle} onChange={e => setSeoTitle(e.target.value)} className="bg-muted/50" maxLength={60} /></div>
               <div><Label>SEO Description</Label><Input value={seoDesc} onChange={e => setSeoDesc(e.target.value)} className="bg-muted/50" maxLength={160} /></div>
-              <Button onClick={handleSave} className="w-full bg-gradient-to-r from-primary to-accent">Save Post</Button>
+              <Button onClick={handleSave} disabled={uploading || saving} className="w-full bg-gradient-to-r from-primary to-accent">{saving ? 'Saving...' : 'Save Post'}</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -156,7 +159,7 @@ export default function PostsManager() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button size="icon" variant="ghost" onClick={() => {
+              <Button size="icon" variant="ghost" aria-label={`Edit ${post.title}`} onClick={() => {
                 setEditing(post);
                 setTitle(post.title);
                 setContent(post.content ?? '');
