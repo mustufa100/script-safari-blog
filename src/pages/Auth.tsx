@@ -42,13 +42,16 @@ const Auth = () => {
           return;
         }
       } else if (callback.tokenHash && callback.type) {
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: callback.tokenHash,
-          type: callback.type as EmailOtpType,
-        });
-        if (error) {
-          if (active) setCallbackError(error.message);
-          return;
+        const { data: current } = await supabase.auth.getSession();
+        if (!current.session) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: callback.tokenHash,
+            type: callback.type as EmailOtpType,
+          });
+          if (error) {
+            if (active) setCallbackError(error.message);
+            return;
+          }
         }
       }
 
@@ -59,6 +62,9 @@ const Auth = () => {
         return;
       }
       if (data.session) {
+        if (callback.type === 'signup' || callback.type === 'email') {
+          await supabase.auth.signOut();
+        }
         setMode('login');
         setCallbackMessage('Your email is confirmed. You can now sign in to Script Safari.');
         window.history.replaceState({}, document.title, window.location.pathname);
