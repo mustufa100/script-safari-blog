@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { useQuotes } from "@/hooks/usePublicContent";
 
 const TrendingQuotes = () => {
-  const { data: quotes = [], isLoading } = useQuotes(10);
+  const { data: quotes = [], isLoading } = useQuotes({ limit: 10 });
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
