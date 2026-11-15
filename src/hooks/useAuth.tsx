@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 import { getAuthRedirectUrl } from '@/lib/authRedirect';
@@ -25,41 +25,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState<AppRole[]>([]);
+  const roleRequest = useRef(0);
 
-  const fetchRoles = async (userId: string) => {
+  const fetchRoles = async (userId: string, request: number) => {
     const { data } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId);
-    if (data) {
-      setRoles(data.map(r => r.role as AppRole));
-    }
+    if (request !== roleRequest.current) return;
+    setRoles(data?.map(r => r.role as AppRole) ?? []);
+    setLoading(false);
   };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
+        const request = ++roleRequest.current;
         setSession(session);
         setUser(session?.user ?? null);
+        setRoles([]);
         if (session?.user) {
-          setTimeout(() => fetchRoles(session.user.id), 0);
+          setLoading(true);
+          setTimeout(() => void fetchRoles(session.user.id, request), 0);
         } else {
           setRoles([]);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchRoles(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => { ++roleRequest.current; subscription.unsubscribe(); };
   }, []);
 
   const signIn = async (email: string, password: string) => {
