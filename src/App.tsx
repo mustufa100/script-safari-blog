@@ -15,6 +15,7 @@ import QuizzesPage from "./pages/QuizzesPage";
 import StoriesPage from "./pages/StoriesPage";
 import ReadersPage from "./pages/ReadersPage";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/stories" element={<StoriesPage />} />
             <Route path="/readers" element={<ReadersPage />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="posts" element={<PostsManager />} />

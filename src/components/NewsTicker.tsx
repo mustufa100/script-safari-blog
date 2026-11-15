@@ -1,7 +1,7 @@
 import { usePublishedNews } from "@/hooks/usePublicContent";
 
 const NewsTicker = () => {
-  const { data: news = [], isLoading } = usePublishedNews(12);
+  const { data: news = [], isLoading } = usePublishedNews({ limit: 12 });
 
   const items = isLoading
     ? ["Loading latest news..."]

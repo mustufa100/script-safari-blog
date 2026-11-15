@@ -11,7 +11,7 @@ const iconByCategory: Record<string, typeof Brain> = {
 const colorByIndex = ["primary", "accent", "secondary"] as const;
 
 const QuizPreview = () => {
-  const { data: quizzes = [], isLoading } = useActiveQuizzes(3);
+  const { data: quizzes = [], isLoading } = useActiveQuizzes({ limit: 3 });
 
   return (
     <section className="py-24">

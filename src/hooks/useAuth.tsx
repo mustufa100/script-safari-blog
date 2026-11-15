@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import { getAuthRedirectUrl } from '@/lib/authRedirect';
 
 type AppRole = 'admin' | 'editor' | 'writer' | 'user';
 
@@ -14,6 +15,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, displayName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -71,8 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: {
         data: { display_name: displayName },
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: getAuthRedirectUrl('/auth'),
       },
+    });
+    return { error: error as Error | null };
+  };
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: getAuthRedirectUrl('/reset-password'),
     });
     return { error: error as Error | null };
   };
@@ -86,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isStaff = roles.some(r => ['admin', 'editor', 'writer'].includes(r));
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, roles, isAdmin, isStaff, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, roles, isAdmin, isStaff, signIn, signUp, signOut, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );
